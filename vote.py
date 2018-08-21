@@ -2,7 +2,7 @@ from datetime import datetime
 
 class Vote(object):
 
-	_ALLOWED_VOTES_PER_CANDIDATE = 1
+	_ALLOWED_VOTES_PER_CITIZEN = 1
 
 	def __init__(self, **kwargs):
 		self.user_name = kwargs['user_name']
@@ -19,19 +19,24 @@ class Vote(object):
 
 		"""
 
-		validation_state = True
+		validation_state = False
 
 		vote_body = self.__dict__['vote_body']
-		if not isinstance(vote_body, dict):
-			validation_state = False
-		
-		# Validate that only one candidate have 1 vote
-		if list(vote_body.values()).count(1) > _ALLOWED_VOTES_PER_CANDIDATE:
-			validation_state = False
+		if isinstance(vote_body, dict):
+			# Validate that only one candidate have 1 vote
+			votes_number_list = list(vote_body.values())
+			if (all(number >= 0 for number in votes_number_list) 
+				and sum(votes_number_list) == Vote._ALLOWED_VOTES_PER_CITIZEN):
+				validation_state = True
 
 		return validation_state
 
 	def to_dict(self):
+		
+		"""
+		Return objetc properties in dict form
+
+		"""
 		return self.__dict__
 
 		

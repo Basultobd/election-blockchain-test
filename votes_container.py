@@ -48,7 +48,7 @@ class VotesContainer(object):
 				the state of the container
 
 		"""
-		is _full = len(self.container) == Block._MAX_VOTES_PER_CONTAINER
+		is_full = len(self.container) == Block._MAX_VOTES_PER_CONTAINER
 		return is_full
 
 	def is_valid(self):
@@ -74,4 +74,10 @@ class VotesContainer(object):
 		return hashlib.sha256(container_str).hexdigest()
 
 	def is_valid_hash(self):
-		return 0
+
+		"""
+		Validate if container hash is valid
+		
+		"""
+		return NotImplementedError
+		

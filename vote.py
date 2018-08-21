@@ -2,6 +2,8 @@ from datetime import datetime
 
 class Vote(object):
 
+	_ALLOWED_VOTES_PER_CANDIDATE = 1
+
 	def __init__(self, **kwargs):
 		self.user_name = kwargs['user_name']
 		self.user_state = kwargs['user_state']
@@ -24,7 +26,7 @@ class Vote(object):
 			validation_state = False
 		
 		# Validate that only one candidate have 1 vote
-		if list(vote_body.values()).count(1) is not 1:
+		if list(vote_body.values()).count(1) > _ALLOWED_VOTES_PER_CANDIDATE:
 			validation_state = False
 
 		return validation_state

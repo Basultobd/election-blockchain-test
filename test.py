@@ -1,41 +1,39 @@
-from votes_container import VotesContainer
-from vote import Vote
-from ine import INE
+from src.votes_container import VotesContainer
+from src.vote import Vote
+from src.ine import INE
 
-def main():
+
+def test():
+
     votes_container = VotesContainer(id=1, previous_hash=0)
-
     ine = INE()
 
     vote = Vote(
-        user_name='Daniel',
-        user_state='Yucatan',
-        user_city='Merida',
-        vote_body={'AMLO':1, 'MID':0, 'ANAYA':0}
+        citizen_name='Daniel',
+        citizen_state='Yucatan',
+        citizen_vote={'AMLO': 1, 'MID': 0, 'ANAYA': 0}
     )
 
     if vote.is_valid():
-        ine.update_votes_per_candidate(vote.to_dict())
+        ine.update_election_state(vote)
 
     vote2 = Vote(
-        user_name='Diego',
-        user_state='Yucatan',
-        user_city='Merida',
-        vote_body={'AMLO':0, 'MID':1, 'ANAYA':0}
+        citizen_name='Diego',
+        citizen_state='Yucatan',
+        citizen_vote={'AMLO': 0, 'MID': 1, 'ANAYA': 0}
     )
 
     if vote2.is_valid():
-        ine.update_votes_per_candidate(vote2.to_dict())
+        ine.update_election_state(vote2)
 
     vote3 = Vote(
-        user_name='Daniel',
-        user_state='Yucatan',
-        user_city='Merida',
-        vote_body={'AMLO':0, 'MID':0, 'ANAYA':1}
+        citizen_name='Daniel',
+        citizen_state='Yucatan',
+        citizen_vote={'AMLO': 0, 'MID': 0, 'ANAYA': 1}
     )
 
     if vote3.is_valid():
-        ine.update_votes_per_candidate(vote3.to_dict())
+        ine.update_election_state(vote3)
 
     # if vote.is_valid():
     #     INE.update_election_state(vote)
@@ -50,4 +48,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    test()

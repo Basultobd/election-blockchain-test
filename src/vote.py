@@ -1,43 +1,55 @@
+from .ine import INE
 from datetime import datetime
+
 
 class Vote(object):
 
-	_ALLOWED_VOTES_PER_CITIZEN = 1
+    """
+    Class for vote model
 
-	def __init__(self, **kwargs):
-		self.user_name = kwargs['user_name']
-		self.user_state = kwargs['user_state']
-		self.user_city = kwargs['user_city']
-		self.vote_body = kwargs['vote_body']
-		self.creation_date = str(datetime.now())
-		self.source_ip = '127.0.0.1'
+    """
 
-	def is_valid(self):
-		
-		""" Verify if vote_body 
-		has a valid format
+    def __init__(self, citizen_name, citizen_state, citizen_vote):
 
-		"""
+        """
+        args:
+            citizen_name (str):
+                Name of the citizen
 
-		validation_state = False
+            citizen_state (str):
+                Residence state of the citizen
 
-		vote_body = self.__dict__['vote_body']
-		if isinstance(vote_body, dict):
-			# Validate that only one candidate have 1 vote
-			votes_number_list = list(vote_body.values())
-			if (all(number >= 0 for number in votes_number_list) 
-				and sum(votes_number_list) == Vote._ALLOWED_VOTES_PER_CITIZEN):
-				validation_state = True
+            citizen_vote (dict):
+                Citizen vote format defined for INE
 
-		return validation_state
+        """
+        self.citizen_name = citizen_name
+        self.citizen_state = citizen_state
+        self.citizen_vote = citizen_vote
+        self.emission_date = str(datetime.now())
 
-	def to_dict(self):
-		
-		"""
-		Return objetc properties in dict form
+    def is_valid(self):
 
-		"""
-		return self.__dict__
+        """
+        Verify if citizen_vote has a valid format
 
-		
-		
+        """
+        validation_state = False
+
+        citizen_vote = self.__dict__['citizen_vote']
+        if isinstance(citizen_vote, dict):
+            # Validate that only one candidate have 1 vote
+            votes_number_list = list(citizen_vote.values())
+            if (all(number >= 0 for number in votes_number_list)
+                    and sum(votes_number_list) == INE._ALLOWED_VOTES_PER_CITIZEN):
+                validation_state = True
+
+        return validation_state
+
+    def to_dict(self):
+
+        """
+        Return objetc properties in dict form
+
+        """
+        return self.__dict__

@@ -15,7 +15,7 @@ def test():
     )
 
     if vote.is_valid():
-        ine.update_election_state(vote)
+        ine.update_state_of_election(vote)
 
     vote2 = Vote(
         citizen_name='Diego',
@@ -24,7 +24,7 @@ def test():
     )
 
     if vote2.is_valid():
-        ine.update_election_state(vote2)
+        ine.update_state_of_election(vote2)
 
     vote3 = Vote(
         citizen_name='Daniel',
@@ -33,10 +33,12 @@ def test():
     )
 
     if vote3.is_valid():
-        ine.update_election_state(vote3)
+        ine.update_state_of_election(vote3)
+
+    print(INE.curr_state_of_election)
 
     # if vote.is_valid():
-    #     INE.update_election_state(vote)
+    #     INE.update_state_of_election(vote)
     #     vote_id = blockchain.current_votes_container.add_vote(vote.to_dict())
     #     if blockchain.current_votes_container.is_full():
     #         notifier.notify_nodes(event='mine_container')

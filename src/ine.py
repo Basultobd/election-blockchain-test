@@ -2,7 +2,7 @@ import redis
 import json
 
 
-class INE(Object):
+class INE(object):
 
     """
     Class used for emulate Electoral National Institute
@@ -15,6 +15,7 @@ class INE(Object):
     """
 
     _ALLOWED_VOTES_PER_CITIZEN = 1
+    curr_state_of_election = None
 
     def __init__(self):
 
@@ -22,39 +23,34 @@ class INE(Object):
         args:
             votes_system (obj):
                 Variable that emulates the election system.
-                Use redis cloient for this
-
-            curr_votes_per_candidate (dict):
-                Updated copy of actual election state
-
+                Use redis client for this
         """
 
         self.votes_system = redis.StrictRedis(host='localhost')
-        self.curr_votes_per_candidate = None
-        self._initiate_election_state()
+        self._initiate_state_of_election()
 
-    def _initiate_election_state(self):
+    def _initiate_state_of_election(self):
 
         """
         Initiate votes system with initial state
 
         """
-        self.votes_system.hmset('votes_per_candidate', {'AMLO': 0, 'MID': 0, 'ANAYA': 0})
+        self.votes_system.hmset('state_of_election', {'AMLO': 0, 'MID': 0, 'ANAYA': 0})
 
-    def get_election_state(self):
+    def _get_state_of_election_from_system(self):
 
         """
         Get total votes per candidate
 
         return:
-            votes_per_candidate (dict):
+            state_of_election (dict):
                 A dict that contains the election actual state
 
         """
-        votes_per_candidate = self.votes_system.hgetall('votes_per_candidate')
-        return {candidate.decode('utf-8'): int(votes) for candidate, votes in votes_per_candidate.items()}
+        state_of_election = self.votes_system.hgetall('state_of_election')
+        return {candidate.decode('utf-8'): int(votes) for candidate, votes in state_of_election.items()}
 
-    def update_election_state(self, vote):
+    def update_state_of_election(self, vote):
 
         """
         Update election state with the information
@@ -72,10 +68,17 @@ class INE(Object):
         citizen_saved = True
 
         # Update votes per candidate in system
-        votes_per_candidate = self.get_election_state()
-        for candidate in votes_per_candidate:
-            votes_per_candidate[candidate] += vote['citizen_vote'][candidate]
+        state_of_election = self._get_state_of_election_from_system()
+        for candidate in state_of_election:
+            state_of_election[candidate] += vote['citizen_vote'][candidate]
 
-        votes_update_state = self.votes_system.hmset('votes_per_candidate', votes_per_candidate)
+        votes_update_state = self.votes_system.hmset('state_of_election', state_of_election)
 
-        return citizen_saved and votes_update_state
+        update_state = False
+        if citizen_saved and votes_update_state:
+            # Success
+            update_state = True
+            # Update copy
+            INE.curr_state_of_election = state_of_election
+
+        return update_state

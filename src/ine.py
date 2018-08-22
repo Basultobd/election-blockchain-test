@@ -1,47 +1,81 @@
 import redis
+import json
 
 
-class INE():
+class INE(Object):
 
-	"""
-	Class used for emulate Electoral National Institute
-	in Mexico.
+    """
+    Class used for emulate Electoral National Institute
+    in Mexico.
 
-	Its main objective is to give the context of the election
-	providing an API for update the election general state (the 
-	form that I choose to call the votes number per candidate).
+    Its main objective is to give the context of the election
+    providing an API for update the election general state (the
+    form that I choose to call the votes number per candidate).
 
-	"""
-	
-	def __init__(self):
-		self._votes_system = redis.StrictRedis(host='localhost')
-		self.initiate_votes_counter()
+    """
 
-	def initiate_votes_counter(self):
-		self._votes_system.hmset('votes_per_candidate', {'AMLO':0, 'MID': 0, 'ANAYA': 0})
+    _ALLOWED_VOTES_PER_CITIZEN = 1
 
-	def get_votes_per_candidate(self):
-		votes_state = self._votes_system.hgetall('votes_per_candidate')
-		return {candidate.decode('utf-8'): int(votes) for candidate, votes in votes_state.items()}
+    def __init__(self):
 
-	def update_votes_per_candidate(self, vote):
+        """
+        args:
+            votes_system (obj):
+                Variable that emulates the election system.
+                Use redis cloient for this
 
-		"""
-		Update election state with the information
-		of a new vote.
+            curr_votes_per_candidate (dict):
+                Updated copy of actual election state
 
-		args:
-			vote (obj):
-				Object that contains all related stuff
-				with user and his favourite candidate
+        """
 
-		"""
-		votes_per_candidate = self.get_votes_per_candidate()
-		for candidate in votes_per_candidate:
-			votes_per_candidate[candidate] += vote['vote_body'][candidate]
+        self.votes_system = redis.StrictRedis(host='localhost')
+        self.curr_votes_per_candidate = None
+        self._initiate_election_state()
 
-		# Update votes per candidate in system
-		self._votes_system.hmset('votes_per_candidate', votes_per_candidate)
-		
+    def _initiate_election_state(self):
 
-		
+        """
+        Initiate votes system with initial state
+
+        """
+        self.votes_system.hmset('votes_per_candidate', {'AMLO': 0, 'MID': 0, 'ANAYA': 0})
+
+    def get_election_state(self):
+
+        """
+        Get total votes per candidate
+
+        return:
+            votes_per_candidate (dict):
+                A dict that contains the election actual state
+
+        """
+        votes_per_candidate = self.votes_system.hgetall('votes_per_candidate')
+        return {candidate.decode('utf-8'): int(votes) for candidate, votes in votes_per_candidate.items()}
+
+    def update_election_state(self, vote):
+
+        """
+        Update election state with the information
+        of a new vote.
+
+        args:
+            vote (obj):
+                Object that contains all related stuff
+                with user and his favourite candidate
+
+        """
+        vote = vote.to_dict()
+        # TODO: Save citizen name, state and time in DB
+        # Temporary
+        citizen_saved = True
+
+        # Update votes per candidate in system
+        votes_per_candidate = self.get_election_state()
+        for candidate in votes_per_candidate:
+            votes_per_candidate[candidate] += vote['citizen_vote'][candidate]
+
+        votes_update_state = self.votes_system.hmset('votes_per_candidate', votes_per_candidate)
+
+        return citizen_saved and votes_update_state

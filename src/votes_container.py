@@ -1,83 +1,86 @@
-
 import hashlib
 from datetime import datetime
-import json
+
 
 class VotesContainer(object):
 
-	_MAX_VOTES_PER_CONTAINER = 5
-	
-	def __init__(self, **args):
+    """
+    Class used to  model a votes container.
+    In blockchain protocol this is a block.
 
-		"""
+    """
 
-		args:
-			id (str):
-				The id for the container
-			previous_container_hash:
-				A SHA-256 hash corresponding 
-				to previous container 
+    _MAX_VOTES_PER_CONTAINER = 5
 
-		"""
+    def __init__(self, **args):
 
-		self.id = args['id']
-		self.container = []
-		self.previous_container_hash = args['previous_hash']
-		self.proof = 0 
-		self.creation_timestamp = str(datetime.now())
+        """
 
-	def add_vote(self, vote):
-		
-		"""
-		Add a vote to the container
+        args:
+            id (str):
+                The id for the container
+            previous_container_hash:
+                A SHA-256 hash corresponding
+                to previous container
+        """
 
-		args:
-			vote (obj):
-				A single vote object
-		"""
-		self.container.append(vote)
+        self.id = args['id']
+        self.container = []
+        self.previous_container_hash = args['previous_hash']
+        self.proof = 0
+        self.creation_timestamp = str(datetime.now())
 
-	def is_full(self):
+    def add_vote(self, vote):
 
-		"""
-		Verificate if the contianer id full of votes
+        """
+        Add a vote to the container
 
-		return:
-			is_full (bool):
-				Boolean that indicates if
-				the state of the container
+        args:
+            vote (obj):
+                A single vote object
+        """
+        self.container.append(vote)
 
-		"""
-		is_full = len(self.container) == Block._MAX_VOTES_PER_CONTAINER
-		return is_full
+    def is_full(self):
 
-	def is_valid(self):
+        """
+        Verificate if the contianer id full of votes
 
-		"""
-		Validate if votes inside container
-		have a valid format
+        return:
+            is_full (bool):
+                Boolean that indicates if
+                the state of the container
 
-		"""
+        """
+        is_full = len(self.container) == Block._MAX_VOTES_PER_CONTAINER
+        return is_full
 
-		return NotImplementedError
+    def is_valid(self):
 
-	def hash(self):
-		
-		"""
-		Creates a SHA-256 hash of a container (block)
+        """
+        Validate if votes inside container
+        have a valid format
 
-		We must make sure that the Dictionary is
-		Ordered, or we'll have inconsistent hashes
-		"""
+        """
 
-		container_str = json.dumps(self.__dict__, sort_keys=True).encode()
-		return hashlib.sha256(container_str).hexdigest()
+        return NotImplementedError
 
-	def is_valid_hash(self):
+    def hash(self):
 
-		"""
-		Validate if container hash is valid
-		
-		"""
-		return NotImplementedError
-		
+        """
+        Creates a SHA-256 hash of a container (block)
+
+        We must make sure that the Dictionary is
+        ordered, or we'll have inconsistent hashes
+        """
+
+        container_str = json.dumps(self.__dict__, sort_keys=True).encode()
+        return hashlib.sha256(container_str).hexdigest()
+
+    def is_valid_hash(self):
+
+        """
+        Validate if container hash is valid
+
+        """
+        return NotImplementedError
